@@ -71,6 +71,21 @@ public class UserEntity implements Serializable {
 
 	public UserEntity() {
 		super();
+	}	
+	
+	public UserEntity(String nome, String email, String senha) {
+		super();
+		this.nome = nome;
+		this.email = email;
+		this.senha = senha;
+	}
+
+	public UserEntity(UUID id, String nome, String email, String senha) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.email = email;
+		this.senha = senha;
 	}
 
 	public UserEntity(String nome, String email, String senha, Set<TaskEntity> tasks) {

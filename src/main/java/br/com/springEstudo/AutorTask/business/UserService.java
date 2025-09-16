@@ -36,13 +36,16 @@ public class UserService {
 	}
 	
 	public void deleteById(UUID id) {
+		if(!userRepository.existsById(id)) {
+			throw new ResourceNotFoundException("Id não encontrada: "+id);
+		}
 		userRepository.deleteById(id);
 	}
 	
 	public UserResponseDto createUser(UserRequestDto request) {
 		Optional<UserEntity> userExistente = userRepository.findByNome(request.nome());
 		if(userExistente.isPresent()) {
-			 new Exception("Username already exists: "+request.nome());
+			throw new IllegalArgumentException("Username already exists: "+request.nome());
 		}
 		UserEntity user =userMapper.paraUserEntity(request);
 		UserEntity savedUser = userRepository.save(user);
@@ -50,6 +53,9 @@ public class UserService {
 	}
 	
 	public UserResponseDto updateUser(UUID id, UserRequestDto request) {
+		if(!userRepository.existsById(id)) {
+			throw new ResourceNotFoundException("Id não encontrado de usuario: "+id);
+		}
 		UserEntity user = userRepository.getReferenceById(id);
 		userMapper.updateUser(request, user);
 		UserEntity userSalvo = userRepository.save(user);
