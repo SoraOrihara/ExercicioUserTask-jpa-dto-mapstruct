@@ -318,9 +318,7 @@ class TaskServiceTest {
 	void testCompleteTaskCase2() {
 		//Preparando
 		UUID id = UUID.randomUUID();
-		TaskEntity task = new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(),
-				LocalDate.of(2025, 11, 20));
-		
+
 		//Configurando mocks
 		when(taskRepository.findById(id)).thenReturn(Optional.empty());
 		
