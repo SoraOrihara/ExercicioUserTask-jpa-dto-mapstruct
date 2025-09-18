@@ -3,7 +3,6 @@ package br.com.springEstudo.AutorTask.business;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -61,13 +60,13 @@ class TaskServiceTest {
 		UUID userId = UUID.randomUUID();
 		UserEntity user = new UserEntity(userId, "Caio", "caio@gmail", "1234");
 		TaskRequestDto request = new TaskRequestDto("tarefa", "descrição da tarefa", LocalDate.of(2025, 11, 02));
-		
+
 		TaskEntity task = new TaskEntity(request.titulo(), request.descricao(), false, LocalDateTime.now(),
 				request.dataConclusao());
-		
+
 		TaskEntity taskSalva = new TaskEntity(UUID.randomUUID(), task.getTitulo(), task.getDescricao(),
 				task.getCompleted(), task.getDataCriacao(), task.getDataConclusao(), user);
-		
+
 		TaskResponseDto response = new TaskResponseDto(taskSalva.getId(), taskSalva.getTitulo(),
 				taskSalva.getDescricao(), taskSalva.getCompleted(), taskSalva.getDataConclusao(),
 				taskSalva.getUser().getId());
@@ -112,42 +111,45 @@ class TaskServiceTest {
 	@Test
 	@DisplayName("Should find a task By id and return a TaskResponseDto")
 	void testFindTaskById() {
-		//Preparação
-		UUID idTask= UUID.randomUUID();
+		// Preparação
+		UUID idTask = UUID.randomUUID();
 		UserEntity user = new UserEntity(UUID.randomUUID(), "Caio", "caio@gmail", "1234");
-		TaskEntity task = new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(), LocalDate.of(2025, 11, 20),user);
-		TaskResponseDto response= new TaskResponseDto(UUID.randomUUID(),"Comprar pão", "Padaria", false, LocalDate.of(2025, 11, 20),user.getId());
-		
-		//Condiguração dos mocks
+		TaskEntity task = new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(),
+				LocalDate.of(2025, 11, 20), user);
+		TaskResponseDto response = new TaskResponseDto(UUID.randomUUID(), "Comprar pão", "Padaria", false,
+				LocalDate.of(2025, 11, 20), user.getId());
+
+		// Condiguração dos mocks
 		when(taskRepository.findById(idTask)).thenReturn(Optional.of(task));
 		when(taskMapper.paraTaskResponse(task)).thenReturn(response);
-		
-		//Ação
-		TaskResponseDto result =taskService.findTaskById(idTask);
-		
-		//Verificação
+
+		// Ação
+		TaskResponseDto result = taskService.findTaskById(idTask);
+
+		// Verificação
 		verify(taskRepository).findById(idTask);
 		verify(taskMapper).paraTaskResponse(task);
-		
-		//Asserts
+
+		// Asserts
 		assertNotNull(result);
-		assertEquals(result.id(),response.id());
-		assertEquals(result.userId(),response.userId());
-		assertEquals(result.dataConclusao(),response.dataConclusao());
-		
+		assertEquals(result.id(), response.id());
+		assertEquals(result.userId(), response.userId());
+		assertEquals(result.dataConclusao(), response.dataConclusao());
+
 	}
+
 	@Test
 	@DisplayName("Should not find a task and Throw a ResourceNotFoundException")
 	void testFindTaskByIdCase2() {
-		//Preparação
-		UUID idTask= UUID.randomUUID();
-		
+		// Preparação
+		UUID idTask = UUID.randomUUID();
+
 		when(taskRepository.findById(idTask)).thenReturn(Optional.empty());
-		
-		assertThrows(ResourceNotFoundException.class,()->taskService.findTaskById(idTask));
-		
+
+		assertThrows(ResourceNotFoundException.class, () -> taskService.findTaskById(idTask));
+
 		verify(taskRepository).findById(idTask);
-		
+
 	}
 
 	@Test
@@ -156,7 +158,7 @@ class TaskServiceTest {
 		// Preparacao
 		UUID userId = UUID.randomUUID();
 		UserEntity user = new UserEntity(userId, "Caio", "caio@gmail", "1234");
-		UserReferenceDto userReference = new UserReferenceDto(userId,"Caio","caio@gmail");
+		UserReferenceDto userReference = new UserReferenceDto(userId, "Caio", "caio@gmail");
 		// Lista das tasks
 		List<TaskEntity> tasks = List
 				.of(new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(), LocalDate.of(2025, 11, 20)));
@@ -188,70 +190,178 @@ class TaskServiceTest {
 	@Test
 	@DisplayName("FindAll should return a task listResponseDto")
 	void testFindAll() {
-		//Preparação
+		// Preparação
 		UserEntity user = new UserEntity(UUID.randomUUID(), "Caio", "caio@gmail", "1234");
-		 // Simular a lista que o repositório retornaria
-	    List<TaskEntity> tasksFromRepo = List.of(new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(), LocalDate.of(2025, 11, 20), user));
-		List<TaskResponseDto>listResponseDto= List.of(new TaskResponseDto(UUID.randomUUID(),
-				"Comprar pão", "Padaria", false, LocalDate.of(2025, 11, 20), user.getId()));
-		
+		// Simular a lista que o repositório retornaria
+		List<TaskEntity> tasksFromRepo = List.of(
+				new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(), LocalDate.of(2025, 11, 20), user));
+		List<TaskResponseDto> listResponseDto = List.of(new TaskResponseDto(UUID.randomUUID(), "Comprar pão", "Padaria",
+				false, LocalDate.of(2025, 11, 20), user.getId()));
+
 		when(taskRepository.findAll()).thenReturn(tasksFromRepo);
 		when(taskMapper.paraListTaskResponse(tasksFromRepo)).thenReturn(listResponseDto);
-		
-		//Ação
-		List<TaskResponseDto>resultado = taskService.findAll();
-		
-		//Verificação
+
+		// Ação
+		List<TaskResponseDto> resultado = taskService.findAll();
+
+		// Verificação
 		verify(taskRepository).findAll();
 		verify(taskMapper).paraListTaskResponse(tasksFromRepo);
-		//Asserts
+		// Asserts
 		assertNotNull(resultado);
-		assertEquals(1,resultado.size());
-		assertEquals(resultado.get(0).id(),listResponseDto.get(0).id());
-		assertEquals(resultado.get(0).userId(),listResponseDto.get(0).userId());
-		
+		assertEquals(1, resultado.size());
+		assertEquals(resultado.get(0).id(), listResponseDto.get(0).id());
+		assertEquals(resultado.get(0).userId(), listResponseDto.get(0).userId());
+
 	}
 
 	@Test
+	@DisplayName("Update should update,save and return a taskResponseDto updated")
 	void testUpdate() {
-		fail("Not yet implemented");
+		 // 1. Given (Preparação)
+	    UUID taskId = UUID.randomUUID();
+	    UserEntity user = new UserEntity(UUID.randomUUID(), "Caio", "caio@gmail", "1234");
+	    
+	    // Objeto de entrada do serviço (o que o usuário enviaria na requisição)
+	    TaskRequestDto request = new TaskRequestDto("Título Atualizado", "Descrição Atualizada", LocalDate.of(2025, 12, 25));
+	    
+	    // Objeto que o repositório 'encontraria' no banco de dados
+	    TaskEntity existingTask = new TaskEntity(taskId, "Título Antigo", "Descrição Antiga", false, LocalDateTime.now(), LocalDate.of(2025, 11, 20), user);
+	    
+	    // Objeto esperado depois do 'mapper' ser chamado (o que o método deve retornar)
+	    TaskResponseDto expectedResponse = new TaskResponseDto(taskId, request.titulo(), request.descricao(), false, request.dataConclusao(), user.getId());
+	
+	    
+	    //Configurando mocks
+	    when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+	    when(taskRepository.save(any(TaskEntity.class))).thenReturn(existingTask);
+	    when(taskMapper.paraTaskResponse(existingTask)).thenReturn(expectedResponse);
+	    
+	    //Ação
+	    TaskResponseDto result =taskService.update(taskId, request);
+	    
+	    //Verify
+	    verify(taskRepository).findById(taskId);
+	    verify(taskMapper).update(request, existingTask);
+	    verify(taskRepository).save(existingTask);
+	    verify(taskMapper).paraTaskResponse(existingTask);
+	    
+	    //Asserts
+	    assertNotNull(result);
+	    assertEquals(expectedResponse.titulo(), result.titulo());
+	    assertEquals(expectedResponse.descricao(), result.descricao());
+	    assertEquals(expectedResponse.dataConclusao(), result.dataConclusao());
+	    assertEquals(expectedResponse.id(), result.id());
+	    
 	}
-
 	@Test
-	void testCompleteTask() {
-		fail("Not yet implemented");
-	}
+	@DisplayName("Update should throw a ResouceNotFound if id not exist")
+	void testUpdateCase2() {
+		 // 1. Given (Preparação)
+	    UUID taskId = UUID.randomUUID();
+	    
+	    // Objeto de entrada do serviço (o que o usuário enviaria na requisição)
+	    TaskRequestDto request = new TaskRequestDto("Título Atualizado", "Descrição Atualizada", LocalDate.of(2025, 12, 25));
+	    
+	   when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+	   
+	   //2. When(ação)
+	   ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class,()-> taskService.update(taskId, request));
+	   
+	   // 3. Then (Verificação de Interações)
+	    // Verifique se o repositório foi chamado para buscar a task
+	    verify(taskRepository).findById(taskId);
+	    
+	    // Verifique se o erro tem a mensagem correta
+	    assertEquals("Task com id: " + taskId + " não encontrado", thrown.getMessage());
 
+	    // Verifique que o mapper NUNCA foi chamado (pois o método parou na exceção)
+	    verify(taskMapper, never()).update(any(), any());
+	    verify(taskMapper, never()).paraTaskResponse(any());
+	    
+	   
+	}
+	@Test
+	@DisplayName("Complete task should change completed to true")
+	void testCompleteTask() {
+		//Preparando
+		UUID id = UUID.randomUUID();
+		TaskEntity task = new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(),
+				LocalDate.of(2025, 11, 20));
+		TaskEntity taskSalva = new TaskEntity("Comprar pão", "Padaria", true, LocalDateTime.now(),
+				LocalDate.of(2025, 11, 20));
+		TaskResponseDto response = new TaskResponseDto(UUID.randomUUID(), "Comprar pão", "Padaria", true,
+				LocalDate.of(2025, 11, 20), any(UUID.class));
+		
+		//Configurando mocks
+		when(taskRepository.findById(id)).thenReturn(Optional.of(task));
+		when(taskRepository.save(task)).thenReturn(taskSalva);
+		when(taskMapper.paraTaskResponse(taskSalva)).thenReturn(response);
+		
+		//Ação
+		TaskResponseDto result = taskService.completeTask(id);
+		
+		//Verificação
+		verify(taskRepository).findById(id);
+		verify(taskRepository).save(task);
+		verify(taskMapper).paraTaskResponse(taskSalva);
+		
+		//Asserts
+		assertNotNull(result);
+		assertEquals(result.completed(),true);
+		assertEquals(result.completed(),response.completed());
+		
+
+	}
+	@Test
+	@DisplayName("Complete task should throw a ResouceNotFoundException")
+	void testCompleteTaskCase2() {
+		//Preparando
+		UUID id = UUID.randomUUID();
+		TaskEntity task = new TaskEntity("Comprar pão", "Padaria", false, LocalDateTime.now(),
+				LocalDate.of(2025, 11, 20));
+		
+		//Configurando mocks
+		when(taskRepository.findById(id)).thenReturn(Optional.empty());
+		
+		//Ação
+		assertThrows(ResourceNotFoundException.class,()-> taskService.completeTask(id));
+		
+		//Verificação
+		verify(taskRepository).findById(id);
+		verify(taskRepository,never()).save(any(TaskEntity.class));
+
+	}
 	@Test
 	@DisplayName("DeleteById Should delete A task")
 	void testDeleteById() {
-		//Preparação
+		// Preparação
 		UUID id = UUID.randomUUID();
 		when(taskRepository.existsById(id)).thenReturn(true);
-		
-		//Ação
+
+		// Ação
 		taskService.deleteById(id);
-		
-		//Verificação
+
+		// Verificação
 		verify(taskRepository).existsById(id);
 		verify(taskRepository).deleteById(id);
-		
-		
+
 	}
+
 	@Test
 	@DisplayName("DeleteByID Should throw ResourceNotFundException")
 	void testDeleteByIdCase2() {
-		//Preparação
+		// Preparação
 		UUID id = UUID.randomUUID();
 		when(taskRepository.existsById(id)).thenReturn(false);
-		
-		//Ação
-		assertThrows(ResourceNotFoundException.class,()->taskService.deleteById(id));
-		
-		//Verificação
+
+		// Ação
+		assertThrows(ResourceNotFoundException.class, () -> taskService.deleteById(id));
+
+		// Verificação
 		verify(taskRepository).existsById(id);
-		verify(taskRepository,never()).deleteById(id);
-		
+		verify(taskRepository, never()).deleteById(id);
+
 	}
 
 }

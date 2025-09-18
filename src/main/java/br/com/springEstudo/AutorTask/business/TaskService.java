@@ -57,6 +57,7 @@ public class TaskService {
 	public TaskResponseDto update(UUID id , TaskRequestDto request) {
 		TaskEntity task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task com id: "+id+" não encontrado"));
 		taskMapper.update(request, task);
+		taskRepository.save(task);
 		return taskMapper.paraTaskResponse(task);
 	}
 	
