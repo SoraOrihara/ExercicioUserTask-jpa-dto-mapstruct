@@ -97,6 +97,29 @@ public class TaskEntity implements Serializable {
 		super();
 	}
 
+	public TaskEntity(UUID id, String titulo, String descricao, Boolean completed, LocalDateTime dataCriacao,
+			LocalDate dataConclusao, UserEntity user) {
+		super();
+		this.id = id;
+		this.titulo = titulo;
+		this.descricao = descricao;
+		this.completed = completed;
+		this.dataCriacao = dataCriacao;
+		this.dataConclusao = dataConclusao;
+		this.user = user;
+	}
+
+	
+	public TaskEntity(String titulo, String descricao, Boolean completed, LocalDateTime dataCriacao,
+			LocalDate dataConclusao) {
+		super();
+		this.titulo = titulo;
+		this.descricao = descricao;
+		this.completed = completed;
+		this.dataCriacao = dataCriacao;
+		this.dataConclusao = dataConclusao;
+	}
+
 	public TaskEntity(String titulo, String descricao, Boolean completed, LocalDateTime dataCriacao,
 			LocalDate dataConclusao, UserEntity user) {
 		super();
